@@ -5,12 +5,12 @@ pub type Tag = Rc<RefCell<TagImpl>>;
 pub struct TagImpl{
     name:String,
     param : HashMap<Params,String>,
-    childs : Vec<TagImpl> ,
+    childs : Childs,
     text : String,
 }
 impl TagImpl {
    pub fn add_child(&mut self,child:TagImpl){
-       self.childs.push(child);
+       self.childs.childern.push(child);
    } 
    pub fn add_text(&mut self, t:&str){
        self.text = t.to_string()
@@ -19,15 +19,19 @@ impl TagImpl {
        self.param.insert(Params::Id, id.to_string());
    }
 }
+
+
 impl Display for TagImpl{
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut child_str = "".to_string();
-        self.childs.iter().for_each(|i|{
-            dbg!(i);
-            child_str.push_str(i.to_string().as_str());
-        });
-        dbg!(&child_str);
-        write!(f,"<{0}>{1}{2}</{0}>",self.name,&child_str,self.text)
+        if self.childs.len()==0{
+            write!(f,"<{0}>{1}</{0}>",self.name,self.text)
+        }else{
+            self.childs.childern.iter().for_each(|i|{
+                child_str.push_str(i.to_string().as_str());
+            });
+            write!(f,"<{0}>{1}{2}</{0}>",self.name,child_str,self.text)
+        }
     }
 }
 pub struct TagBuilder{
@@ -54,7 +58,7 @@ impl TagBuilder{
                 TagImpl { 
                     name: self.name.clone(),
                     param: self.param.clone(),
-                    childs: self.childs.clone(),
+                    childs: Childs { childern: self.childs.clone() },
                     text: self.text.clone()
                     }
                 )
@@ -67,3 +71,13 @@ enum Params {
    Id 
 }
 impl Eq for Params {}
+
+#[derive(Clone,Debug)]
+struct Childs{
+    childern : Vec<TagImpl>
+}
+impl Childs {
+   fn len(&self)->usize{
+        self.childern.len()
+   }
+}

@@ -1,6 +1,5 @@
 use site::tag::TagBuilder;
 use site::f;
-use std::{fs::File, io::Write};
 
 fn main() {
     let v = vec!["Shakhtar","Dynamo","Zorya","Dnepr"];
@@ -9,22 +8,21 @@ fn main() {
     let body =TagBuilder::new("body").build();
     let div = TagBuilder::new("div").build();
     let h1 = TagBuilder::new("h1").build();
-    h1.borrow_mut().add_text("Life is shit!");
-    f::add(&html,&head);
-    f::add(&html,&body);
-    f::add(&body,&div);
-    f::add(&div,&h1);
     let table = TagBuilder::new("table").build();
-    f::add(&div,&table);
     v.iter().for_each(|i|{
-        let tr = TagBuilder::new("tr").build();
-        f::add(&table, &tr);
         let td = TagBuilder::new("td").build();
         td.borrow_mut().add_text(i);
+        let tr = TagBuilder::new("tr").build();
         f::add(&tr, &td);
+        f::add(&table, &tr);
     });
-    let mut f = File::create("index.html").unwrap();
-    write!(f,"{}",html.borrow()).unwrap();
+    h1.borrow_mut().add_text("Life is shit!");
+    f::add(&div,&table);
+    f::add(&div,&h1);
+    f::add(&body,&div);
+    f::add(&html,&head);
+    f::add(&html,&body);
+    std::fs::write("index.html", html.borrow().to_string()).unwrap();
+    //println!("{}",html.borrow());
 
-    println!("{}",html.borrow());
 }
